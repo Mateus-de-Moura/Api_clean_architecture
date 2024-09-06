@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api_clean_architecture.Infra.Data.Data;
 
@@ -11,9 +12,11 @@ using api_clean_architecture.Infra.Data.Data;
 namespace api_clean_architecture.Infra.Data.Migrations
 {
     [DbContext(typeof(TasksDbContext))]
-    partial class TasksDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240906132400_UPDATE_TABLE_USER")]
+    partial class UPDATE_TABLE_USER
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

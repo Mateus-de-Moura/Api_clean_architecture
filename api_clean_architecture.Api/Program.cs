@@ -8,7 +8,9 @@ var configuration = builder.Configuration;
 builder.AddServices();
 builder.AddDatabase();
 builder.AddValidators();
-builder.AddMapper();    
+builder.AddMapper();
+builder.AddJwtAuth();
+builder.AddInjection();
 
 var app = builder.Build();
 

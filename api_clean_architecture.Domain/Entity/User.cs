@@ -19,6 +19,9 @@ namespace api_clean_architecture.Domain.Entity
         public string? PasswordHash { get; set; }
 
         [Required]
+        public string ? PasswordSalt { get; set; }
+
+        [Required]
         public string? UserName { get; set; }
 
         public ICollection<Workspace>? Workspaces { get; set; } 

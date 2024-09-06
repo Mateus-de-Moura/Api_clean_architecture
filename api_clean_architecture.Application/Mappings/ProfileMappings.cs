@@ -10,15 +10,15 @@ namespace api_clean_architecture.Application.Mappings
         public ProfileMappings()
         {
             CreateMap<CreateUserCommand, User>()
-                .ForMember(dest => dest.RefreshToken,  map => map.MapFrom(src => GenerateGuid()))
-                .ForMember(dest => dest.RefreshTokenExpirationTime, map => map.MapFrom(src => AddFiveDays()))
+                .ForMember(dest => dest.RefreshToken,x => x.AllowNull())
+                .ForMember(dest => dest.PasswordHash, x => x.AllowNull())
+                .ForMember(dest => dest.RefreshTokenExpirationTime, map => map.MapFrom(src => AddTenDays()))
                 .ForMember(dest => dest.PasswordHash,  map => map.MapFrom(src => src.Password));
 
             CreateMap<User, UserInfoViewModel>()
-                .ForMember(dest => dest.TokenJwt, map => map.MapFrom(src => GenerateGuid()));
+                .ForMember(x => x.TokenJwt, x => x.AllowNull());
         }
-
-        private static string GenerateGuid() {  return Guid.NewGuid().ToString(); }
-        private static DateTime AddFiveDays() { return DateTime.Now.AddDays(5); }
+       
+        private static DateTime AddTenDays() { return DateTime.Now.AddDays(10); }
     }
 }
