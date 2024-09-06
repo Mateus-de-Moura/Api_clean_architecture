@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\api_clean_architecture.Domain\api_clean_architecture.Domain.csproj" />
+    <ProjectReference Include="..\api_clean_architecture.Infra.Data\api_clean_architecture.Infra.Data.csproj" />
+    <ProjectReference Include="..\api_clean_architecture.Services\api_clean_architecture.Services.csproj" />
+  </ItemGroup>
+
+</Project>
