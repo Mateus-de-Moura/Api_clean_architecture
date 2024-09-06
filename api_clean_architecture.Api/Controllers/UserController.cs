@@ -1,21 +1,21 @@
-﻿using api_clean_architecture.Application.Response;
-using api_clean_architecture.Application.UserCQ.Commands;
+﻿using api_clean_architecture.Application.UserCQ.Commands;
 using api_clean_architecture.Application.UserCQ.ViewModels;
 using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace api_clean_architecture.Api.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class AuthController(IMediator madiator, IMapper mapper) : ControllerBase
+    public class UserController(IMediator madiator, IMapper mapper) : ControllerBase
     {
         private readonly IMediator _mediator = madiator;
-        private readonly IMapper _mapper = mapper;      
+        private readonly IMapper _mapper = mapper;
 
-        [HttpPost("Login")]
-        public async Task<ActionResult<ResponseBase<UserInfoViewModel>>> Login(LoginUserCommand command)
+        [HttpPost("CreateUser")]
+        public async Task<ActionResult<UserInfoViewModel>> CreateUser(CreateUserCommand command)
         {
             var request = await _mediator.Send(command);
 
@@ -40,7 +40,7 @@ namespace api_clean_architecture.Api.Controllers
                     };
 
                     Response.Cookies.Append("jwt", request.Value!.TokenJwt!, cookiesOptionsToken);
-                    Response.Cookies.Append("refreshToken", request.Value!.RefreshToken!, cookiesOptionsRefreshToken);
+                    Response.Cookies.Append("jwt", request.Value!.RefreshToken!, cookiesOptionsRefreshToken);
 
                     return Ok(_mapper.Map<UserInfoViewModel>(request.Value));
                 }
@@ -48,18 +48,6 @@ namespace api_clean_architecture.Api.Controllers
             }
 
             return BadRequest(request);
-        }
-
-        [HttpPost("RefreshToken")]
-        public async Task<ActionResult<ResponseBase<UserInfoViewModel>>> RefreshToken(RefreshTokenCommand comand)
-        {
-            var request = await _mediator.Send(new RefreshTokenCommand
-            {
-                Username = comand.Username,
-                RefreshToken = Request.Cookies["refreshToken"]
-            });
-
-            return Ok(request);
         }
     }
 }
