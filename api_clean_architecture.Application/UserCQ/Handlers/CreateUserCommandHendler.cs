@@ -3,6 +3,7 @@ using api_clean_architecture.Application.UserCQ.Commands;
 using api_clean_architecture.Application.UserCQ.ViewModels;
 using api_clean_architecture.Domain.Abstractions;
 using api_clean_architecture.Domain.Entity;
+using api_clean_architecture.Domain.Enum;
 using api_clean_architecture.Infra.Data.Data;
 using AutoMapper;
 using MediatR;
@@ -10,14 +11,55 @@ using MediatR;
 namespace api_clean_architecture.Application.UserCQ.Handlers
 {
     public class CreateUserCommandHendler(TasksDbContext context, IMapper mapper,
-        IAuthService authService ) : IRequestHandler<CreateUserCommand, ResponseBase<UserInfoViewModel?>>
+        IAuthService authService ) : IRequestHandler<CreateUserCommand, ResponseBase<RefreshTokenViewModel?>>
     {
         private readonly TasksDbContext _context = context;
         private readonly IMapper _mapper = mapper;
         private readonly IAuthService _authService = authService;
 
-        public async Task<ResponseBase<UserInfoViewModel>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
+        public async Task<ResponseBase<RefreshTokenViewModel>> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
+            var isUniqueEmailAndUsername = await _authService.UniqueEmailAndUserName(request.Email!, request.Username!);
+            
+            if(isUniqueEmailAndUsername is ValidationFieldsUserEnum.EmailUnavailable)
+            {
+                return new ResponseBase<RefreshTokenViewModel>
+                {
+                    ResponseInfo = new ResponseInfo { Title = "Email Indisponivel", 
+                        ErrorDescription = "O Email Já está sendo utilizado. Tente outro.",
+                        HttpStatus = 400
+                    },
+                    Value = null
+                };
+            }
+
+            if (isUniqueEmailAndUsername is ValidationFieldsUserEnum.UsernameUnavailable) 
+            {
+                return new ResponseBase<RefreshTokenViewModel>
+                {
+                    ResponseInfo = new ResponseInfo
+                    {
+                        Title = "Username Indisponivel",
+                        ErrorDescription = "O username Já está sendo utilizado. Tente outro.",
+                        HttpStatus = 400
+                    },
+                    Value = null
+                };
+            }
+            if (isUniqueEmailAndUsername is ValidationFieldsUserEnum.UsernameAndEmailUnavailable) 
+            {
+                return new ResponseBase<RefreshTokenViewModel>
+                {
+                    ResponseInfo = new ResponseInfo
+                    {
+                        Title = "Username e Email Indisponíveis",
+                        ErrorDescription = "o username e o email apresentados já estão sendo utilizados. Tente outro.",
+                        HttpStatus = 400
+                    },
+                    Value = null
+                };
+            }
+
             var passwordSalt = BCrypt.Net.BCrypt.GenerateSalt();
             var passWordHash = BCrypt.Net.BCrypt.HashPassword(request.Password, passwordSalt);
 
@@ -29,13 +71,13 @@ namespace api_clean_architecture.Application.UserCQ.Handlers
             await _context.Users.AddAsync(user);
             await _context.SaveChangesAsync();
 
-            var userInfoVM = _mapper.Map<UserInfoViewModel>(user);
-            userInfoVM.TokenJwt = _authService.GenerateJWT(user.Email!, user.UserName!);         
+            var refreshTokenVM = _mapper.Map<RefreshTokenViewModel>(user);
+            refreshTokenVM.TokenJwt = _authService.GenerateJWT(user.Email!, user.UserName!);         
 
-            return new ResponseBase<UserInfoViewModel>
+            return new ResponseBase<RefreshTokenViewModel>
             {
                 ResponseInfo = null,
-                Value = userInfoVM,
+                Value = refreshTokenVM,
             };
         }
     }

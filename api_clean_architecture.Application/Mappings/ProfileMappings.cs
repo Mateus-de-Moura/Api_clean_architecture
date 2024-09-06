@@ -13,10 +13,12 @@ namespace api_clean_architecture.Application.Mappings
                 .ForMember(dest => dest.RefreshToken,x => x.AllowNull())
                 .ForMember(dest => dest.PasswordHash, x => x.AllowNull())
                 .ForMember(dest => dest.RefreshTokenExpirationTime, map => map.MapFrom(src => AddTenDays()))
-                .ForMember(dest => dest.PasswordHash,  map => map.MapFrom(src => src.Password));
+                .ForMember(dest => dest.PasswordHash,  map => map.MapFrom(src => src.Password)); 
+            
+            CreateMap<User, RefreshTokenViewModel>()
+                .ForMember(x => x.TokenJwt,  x => x.AllowNull());
 
-            CreateMap<User, UserInfoViewModel>()
-                .ForMember(x => x.TokenJwt, x => x.AllowNull());
+            CreateMap<RefreshTokenViewModel, UserInfoViewModel>();
         }
        
         private static DateTime AddTenDays() { return DateTime.Now.AddDays(10); }

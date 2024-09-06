@@ -1,4 +1,7 @@
 ﻿using api_clean_architecture.Domain.Abstractions;
+using api_clean_architecture.Domain.Enum;
+using api_clean_architecture.Infra.Data.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -8,9 +11,10 @@ using System.Text;
 
 namespace api_clean_architecture.Services.AuthService
 {
-    public class AuthService(IConfiguration configuration) : IAuthService
+    public class AuthService(IConfiguration configuration, TasksDbContext context) : IAuthService
     {
         private readonly IConfiguration _configuration = configuration;
+        private readonly TasksDbContext _context = context;
         public string GenerateJWT(string email, string username)
         {
             var issuer = _configuration["JWT:Issuer"];
@@ -45,6 +49,23 @@ namespace api_clean_architecture.Services.AuthService
             randomNumberGenerator.GetBytes(securityRandomBytes);
 
             return Convert.ToBase64String(securityRandomBytes);
+        }
+
+        public async Task<ValidationFieldsUserEnum> UniqueEmailAndUserName(string email, string username)
+        {
+            var users = await _context.Users.ToListAsync();
+
+            var userNameExists = users.Exists(x => x.UserName == username);
+            var emailExists = users.Exists(x => x.Email == email);
+
+            if (emailExists)
+                return ValidationFieldsUserEnum.EmailUnavailable;
+            else if (userNameExists)
+                return ValidationFieldsUserEnum.UsernameUnavailable;
+            else if (userNameExists && emailExists)
+                return ValidationFieldsUserEnum.UsernameAndEmailUnavailable;
+            else
+                return ValidationFieldsUserEnum.isValid;
         }
     }
 }

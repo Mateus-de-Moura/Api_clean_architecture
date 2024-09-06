@@ -38,7 +38,14 @@ namespace api_clean_architecture.Api
                     ValidAudience = configuration["JTW:Audience"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JWT:Key"]!))
                 };
-            });
+            })
+                .AddCookie(options =>
+                {
+                    options.Cookie.HttpOnly = true;
+                    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                    options.Cookie.SameSite = SameSiteMode.Strict;
+                    options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                });
         }
 
         public static void AddInjection(this WebApplicationBuilder builder)

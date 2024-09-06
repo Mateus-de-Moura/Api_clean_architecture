@@ -4,7 +4,7 @@ using MediatR;
 
 namespace api_clean_architecture.Application.UserCQ.Commands
 {
-    public record CreateUserCommand : IRequest<ResponseBase<UserInfoViewModel?>>
+    public record CreateUserCommand : IRequest<ResponseBase<RefreshTokenViewModel?>>
     {
         public string? Name { get; set; }
         public string? Surname { get; set; }
